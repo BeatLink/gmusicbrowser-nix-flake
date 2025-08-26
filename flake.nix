@@ -7,16 +7,11 @@
         nixpkgs = {
             url = "github:NixOS/nixpkgs/nixos-unstable";
         };
-        home-manager = {
-            url = "github:nix-community/home-manager";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
     };
     outputs =
         {
             self,
             nixpkgs,
-            home-manager,
         }:
         let
             forAllSystems = nixpkgs.lib.genAttrs [
@@ -62,7 +57,7 @@
 
                 in
                 {
-                    gmusicbrowser = pkgs.perlPackages.buildPerlPackage rec {
+                    gmusicbrowser = pkgs.perlPackages.buildPerlPackage {
 
                         pname = "gmusicbrowser";
 
