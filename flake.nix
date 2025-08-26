@@ -69,9 +69,21 @@
 
                         preFixup = ''
                             gappsWrapperArgs+=(--prefix PERL5LIB : "${pkgs.perlPackages.makePerlPath deps}")
+                            gappsWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH : "${pkgs.gst_all_1.gst-plugins-base}/lib/gstreamer-1.0")
+                            gappsWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH : "${pkgs.gst_all_1.gst-plugins-good}/lib/gstreamer-1.0")
+                            gappsWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH : "${pkgs.gst_all_1.gst-plugins-bad}/lib/gstreamer-1.0")
+                            gappsWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH : "${pkgs.gst_all_1.gst-plugins-ugly}/lib/gstreamer-1.0")
+                            gappsWrapperArgs+=(--prefix GST_PLUGIN_SYSTEM_PATH : "${pkgs.gst_all_1.gst-libav}/lib/gstreamer-1.0")
+                            gappsWrapperArgs+=(--prefix LD_LIBRARY_PATH : "${pkgs.taglib}/lib")
                         '';
 
+                        postFixup = ''
+                            wrapProgram $out/bin/gmusicbrowser \
+                              --prefix PATH : ${pkgs.perl}/bin
+                        '';
                         buildInputs = [
+                            pkgs.perl
+                            pkgs.taglib
                             pkgs.gst_all_1.gstreamer
                             pkgs.gst_all_1.gst-plugins-base
                             pkgs.gst_all_1.gst-plugins-good
@@ -81,10 +93,14 @@
                         ]
                         ++ deps;
 
+                        propagatedBuildInputs = [ pkgs.perl ];
+
                         nativeBuildInputs = [
                             pkgs.gettext
                             pkgs.multimarkdown
                             pkgs.wrapGAppsHook
+                            pkgs.perl
+                            pkgs.gobject-introspection
                         ];
 
                         meta = with pkgs.lib; {
