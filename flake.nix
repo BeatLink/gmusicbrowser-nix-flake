@@ -88,7 +88,7 @@
                             pkgs.makeWrapper
                             pkgs.gettext
                             pkgs.multimarkdown
-                            pkgs.wrapGAppsHook
+                            pkgs.wrapGAppsHook3
                             pkgs.perl
                             pkgs.gobject-introspection
                         ];
