@@ -144,7 +144,7 @@
                 {
                     options.programs.gmusicbrowser.enable = mkEnableOption "gmusicbrowser music player";
                     config = mkIf config.programs.gmusicbrowser.enable {
-                        environment.systemPackages = [ self.packages.${pkgs.system}.gmusicbrowser ];
+                        environment.systemPackages = [ self.packages.${pkgs.stdenv.hostPlatform.system}.gmusicbrowser ];
                     };
                 };
             nixosModules.default = self.nixosModules.gmusicbrowser;
@@ -161,7 +161,7 @@
                 {
                     options.programs.gmusicbrowser.enable = mkEnableOption "gmusicbrowser music player";
                     config = mkIf config.programs.gmusicbrowser.enable {
-                        home.packages = [ self.packages.${pkgs.system}.gmusicbrowser ];
+                        home.packages = [ self.packages.${pkgs.stdenv.hostPlatform.system}.gmusicbrowser ];
                     };
                 };
             homeManagerModules.default = self.homeManagerModules.gmusicbrowser;
