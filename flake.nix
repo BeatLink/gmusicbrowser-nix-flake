@@ -50,6 +50,58 @@
                         pkgs.gst_all_1.gst-libav
                     ];
 
+                    # GTK stock id -> freedesktop icon name, for the icons GTK 3 no longer
+                    # resolves. Apply and OK are deliberately absent: modern themes carry no
+                    # icon for them, and their buttons are labelled.
+                    stockIconFallbacks =
+                        let
+                            map' = {
+                                # Reaches a stock name in upstream's table, and the lookup is
+                                # single-level, so it needs the real name directly.
+                                "gmb-view-fullscreen" = "view-fullscreen";
+
+                                "gtk-about" = "help-about";
+                                "gtk-add" = "list-add";
+                                "gtk-clear" = "edit-clear";
+                                "gtk-close" = "window-close";
+                                "gtk-copy" = "edit-copy";
+                                "gtk-delete" = "edit-delete";
+                                "gtk-edit" = "accessories-text-editor";
+                                "gtk-fullscreen" = "view-fullscreen";
+                                "gtk-go-back" = "go-previous";
+                                "gtk-go-down" = "go-down";
+                                "gtk-go-forward" = "go-next";
+                                "gtk-go-up" = "go-up";
+                                "gtk-goto-bottom" = "go-bottom";
+                                "gtk-goto-top" = "go-top";
+                                "gtk-index" = "help-contents";
+                                "gtk-info" = "dialog-information";
+                                "gtk-jump-to" = "go-jump";
+                                "gtk-leave-fullscreen" = "view-restore";
+                                "gtk-media-next" = "media-skip-forward";
+                                "gtk-media-pause" = "media-playback-pause";
+                                "gtk-media-play" = "media-playback-start";
+                                "gtk-media-previous" = "media-skip-backward";
+                                "gtk-media-stop" = "media-playback-stop";
+                                "gtk-new" = "document-new";
+                                "gtk-open" = "document-open";
+                                "gtk-quit" = "application-exit";
+                                "gtk-refresh" = "view-refresh";
+                                "gtk-remove" = "list-remove";
+                                "gtk-save" = "document-save";
+                                "gtk-save-as" = "document-save-as";
+                                "gtk-sort-ascending" = "view-sort-ascending";
+                                "gtk-sort-descending" = "view-sort-descending";
+                                "gtk-zoom-100" = "zoom-original";
+                                "gtk-zoom-fit" = "zoom-fit-best";
+                                "gtk-zoom-in" = "zoom-in";
+                                "gtk-zoom-out" = "zoom-out";
+                            };
+                        in
+                        nixpkgs.lib.concatStringsSep "\n" (
+                            nixpkgs.lib.mapAttrsToList (stock: name: "\t'${stock}' => '${name}',") map'
+                        );
+
                     otherDeps = [
                         pkgs.mediainfo
                         pkgs.mpv
@@ -80,6 +132,16 @@
                         preBuild = ''
                             substituteInPlace generic_metadata_reader_gstreamer.pm --replace "system('env','perl',__FILE__)" "system('${pkgs.perl}/bin/perl', __FILE__)"
                             substituteInPlace generic_metadata_reader_gstreamer.pm --replace "my @cmd_and_args= ('env','perl',__FILE__,$uri)" "my @cmd_and_args= ('${pkgs.perl}/bin/perl',__FILE__,$uri)"
+
+                            # gmusicbrowser asks the icon theme for GTK stock names, and its own
+                            # set_from_stock override blanks the image when the lookup fails —
+                            # so on a theme without the legacy gtk-* names every toolbar icon
+                            # renders as empty space. %IconsFallbacks is the upstream hook for
+                            # this: a fallback is registered only for names the theme lacks.
+                            substituteInPlace gmusicbrowser.pl --replace \
+                                "	#'gmb-media-skip-forward'=> 'media-skip-forward'," \
+                                "	#'gmb-media-skip-forward'=> 'media-skip-forward',
+${stockIconFallbacks}"
                         '';
 
                         buildInputs = gstreamerDeps ++ perlDeps ++ otherDeps;
